@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { fetchEmployees } from "./services/api.js";
-import { createEmployeeTree } from "./utils.js";
+import { createEmployeeTree, toggleSelection } from "./utils.js";
 import TreeNode from "./components/TreeNode/TreeNode.jsx";
 import "./App.css";
 
 function App() {
   const [employees, setEmployees] = useState({});
   const [loading, setLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState(new Set());
 
   useEffect(() => {
     setLoading(true);
@@ -17,21 +18,46 @@ function App() {
       .finally(() => setLoading(false));
   }, []);
 
+  const isChecked = (id) => selectedIds.has(id);
+
+  const handleCheck = (id) => {
+    const newSelectedIds = new Set(selectedIds);
+    toggleSelection(id, newSelectedIds, [
+      ...employees.validEmployees,
+      ...employees.invalidEmployees,
+    ]);
+    setSelectedIds(newSelectedIds);
+  };
+
+  const handleSubmit = () => {
+    const idsArray = Array.from(selectedIds);
+    console.log("Submitting IDs:", idsArray);
+  };
+
   if (loading) return <div>Loading...</div>;
+
+  const allEmployees = [
+    ...(employees.validEmployees?.map((emp) => ({ ...emp, valid: true })) ||
+      []),
+    ...(employees.invalidEmployees?.map((emp) => ({ ...emp, valid: false })) ||
+      []),
+  ];
+
   return (
     <div>
       <h1>Employee Tree</h1>
-      {employees?.validEmployees?.map((root) => {
-        return <TreeNode key={root.Id} employee={root} valid={true} />;
-      })}
-      {employees?.invalidEmployees?.length > 0 &&
-        employees.invalidEmployees.map((employee) => {
-          return (
-            <TreeNode key={employee.Id} employee={employee} valid={false} />
-          );
-        })}
-      <button onClick={() => {}}>Submit Selected</button>
+      {allEmployees.map((employee) => (
+        <TreeNode
+          key={employee.Id}
+          employee={employee}
+          isChecked={isChecked}
+          handleCheck={handleCheck}
+          valid={employee.valid}
+        />
+      ))}
+      <button onClick={handleSubmit}>Submit Selected</button>
     </div>
   );
 }
+
 export default App;

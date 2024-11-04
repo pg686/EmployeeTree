@@ -54,3 +54,10 @@ export const fetchEmployees = () => {
     }, 2000);
   });
 };
+export const submitSelectedEmployees = (selectedIds) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ success: true, data: selectedIds });
+    }, 1000);
+  });
+};

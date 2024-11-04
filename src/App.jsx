@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchEmployees } from "./services/api.js";
+import { fetchEmployees, submitSelectedEmployees } from "./services/api.js";
 import { createEmployeeTree, toggleSelection } from "./utils.js";
 import TreeNode from "./components/TreeNode/TreeNode.jsx";
 import "./App.css";
@@ -31,9 +31,14 @@ function App() {
 
   const handleSubmit = () => {
     const idsArray = Array.from(selectedIds);
-    console.log("Submitting IDs:", idsArray);
+    submitSelectedEmployees(idsArray).then((response) => {
+      if (response.success) {
+        console.log(
+          "Employee IDs submitted successfully. IDs: " + response.data,
+        );
+      }
+    });
   };
-
   if (loading) return <div>Loading...</div>;
 
   const allEmployees = [

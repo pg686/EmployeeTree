@@ -1,6 +1,6 @@
 import React from "react";
 
-const TreeNode = ({ employee, isChecked, handleCheck, valid }) => {
+const TreeNodeComponent = ({ employee, isChecked, handleCheck, valid }) => {
   const handleChange = () => handleCheck(employee.Id);
 
   return (
@@ -28,5 +28,7 @@ const TreeNode = ({ employee, isChecked, handleCheck, valid }) => {
     </div>
   );
 };
+
+const TreeNode = React.memo(TreeNodeComponent);
 
 export default TreeNode;

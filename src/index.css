@@ -34,3 +34,26 @@ textarea,
 select {
   font: inherit;
 }
+
+.error-message {
+  color: red;
+  font-size: 0.8em;
+}
+
+.container {
+  padding: 1rem 3rem;
+}
+button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 1rem;
+}
+
+.loader {
+  margin: 2rem;
+}

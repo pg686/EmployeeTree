@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { fetchEmployees } from "./services/api.js";
+import { fetchEmployees, submitSelectedEmployees } from "./services/api.js";
 import { createEmployeeTree, toggleSelection } from "./utils.js";
 import TreeNode from "./components/TreeNode/TreeNode.jsx";
 import "./App.css";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function App() {
   const [rawEmployeeData, setRawEmployeeData] = useState([]);
@@ -37,16 +38,24 @@ function App() {
   );
   const handleSubmit = () => {
     const idsArray = Array.from(selectedIds);
-    submitSelectedEmployees(idsArray).then((response) => {
-      if (response.success) {
-        console.log(
-          "Employee IDs submitted successfully. IDs: " + response.data,
-        );
-      }
-    });
+    if (idsArray.length) {
+      submitSelectedEmployees(idsArray).then((response) => {
+        if (response.success) {
+          console.log(
+            "Employee IDs submitted successfully. IDs: " + response.data,
+          );
+        }
+      });
+    }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="loader">
+        <CircularProgress />
+      </div>
+    );
+  }
   const allEmployees = [
     ...(employees?.validEmployees?.map((emp) => ({ ...emp, valid: true })) ||
       []),
@@ -55,7 +64,7 @@ function App() {
   ];
 
   return (
-    <div>
+    <div className="container">
       <h1>Employee Tree</h1>
       {employees?.cyclicDependencies?.length > 0 && (
         <div className="error-message">
@@ -74,7 +83,7 @@ function App() {
           valid={employee.valid}
         />
       ))}
-      <button onClick={handleSubmit}>Submit Selected</button>
+      <button onClick={handleSubmit}>Submit</button>
     </div>
   );
 }

@@ -50,6 +50,8 @@ export const fetchEmployees = () => {
         { Id: 31, Name: "Mason", Title: "Operations Manager", ManagerId: 103 },
         { Id: 32, Name: "Zoe", Title: "Logistics Coordinator", ManagerId: 233 },
         { Id: 33, Name: "Nora", Title: "Warehouse Manager", ManagerId: 333 },
+        { Id: 40, Name: "Ivan", Title: "Lead Developer", ManagerId: 41 },
+        { Id: 41, Name: "Boyan", Title: "Senior Developer", ManagerId: 40 },
       ]);
     }, 2000);
   });

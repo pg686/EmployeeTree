@@ -1,23 +1,71 @@
 export const createEmployeeTree = (employees) => {
   const invalidEmployees = employees.filter(
-    (e) =>
-      e.ManagerId !== null && !employees.map((x) => x.Id).includes(e.ManagerId),
+    (e) => e.ManagerId !== null && !employees.some((x) => x.Id === e.ManagerId),
+  );
+  const validEmployees = employees.filter(
+    (e) => !invalidEmployees.some((invalid) => invalid.Id === e.Id),
   );
 
+  const cyclicDependencies = detectCycles(validEmployees);
+  const visited = new Set();
+
+  function detectCycles(employees) {
+    const cycles = new Set();
+
+    const dfs = (employee, ancestors = new Set()) => {
+      if (ancestors.has(employee.Id)) {
+        ancestors.forEach((id) => cycles.add(id));
+        return;
+      }
+
+      ancestors.add(employee.Id);
+      const children = employees.filter((e) => e.ManagerId === employee.Id);
+      children.forEach((child) => {
+        if (!cycles.has(child.Id)) {
+          dfs(child, new Set(ancestors));
+        }
+      });
+    };
+    employees.forEach((emp) => {
+      if (!cycles.has(emp.Id)) {
+        dfs(emp);
+      }
+    });
+
+    return Array.from(cycles);
+  }
+
   const buildTree = (employee) => {
-    const children = employees.filter((e) => e.ManagerId === employee.Id);
-    employee.children = children.length ? children.map(buildTree) : [];
+    if (cyclicDependencies.includes(employee.Id) || visited.has(employee.Id)) {
+      return null;
+    }
+
+    visited.add(employee.Id);
+
+    const children = validEmployees.filter((e) => e.ManagerId === employee.Id);
+    employee.children = children.map(buildTree).filter(Boolean);
+
     return employee;
   };
 
-  const rootEmployees = employees.filter((e) => e.ManagerId === null);
-  const validEmployees = rootEmployees.map(buildTree);
+  const trees = validEmployees
+    .filter((e) => e.ManagerId === null || !visited.has(e.Id))
+    .map(buildTree)
+    .filter(Boolean);
+
+  validEmployees
+    .filter((e) => !visited.has(e.Id))
+    .forEach((employee) => {
+      const tree = buildTree(employee);
+      if (tree) trees.push(tree);
+    });
+
   return {
-    validEmployees,
+    validEmployees: trees,
     invalidEmployees,
+    cyclicDependencies,
   };
 };
-
 export const findEmployeeById = (id, nodes) => {
   for (const node of nodes) {
     if (node.Id === id) {

@@ -8,12 +8,16 @@ function App() {
   const [employees, setEmployees] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState(new Set());
+  const [cyclicDependencies, setCyclicDependencies] = useState([]);
 
   useEffect(() => {
     setLoading(true);
     fetchEmployees()
       .then((data) => {
-        setEmployees(createEmployeeTree(data));
+        const { validEmployees, invalidEmployees, cyclicDependencies } =
+          createEmployeeTree(data);
+        setEmployees({ validEmployees, invalidEmployees });
+        setCyclicDependencies(cyclicDependencies);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -40,7 +44,6 @@ function App() {
     });
   };
   if (loading) return <div>Loading...</div>;
-
   const allEmployees = [
     ...(employees.validEmployees?.map((emp) => ({ ...emp, valid: true })) ||
       []),
@@ -51,6 +54,14 @@ function App() {
   return (
     <div>
       <h1>Employee Tree</h1>
+      {cyclicDependencies.length > 0 && (
+        <div className="error-message">
+          <p>
+            Error: Cyclic dependencies detected for employee IDs:{" "}
+            {cyclicDependencies.join(", ")}
+          </p>
+        </div>
+      )}
       {allEmployees.map((employee) => (
         <TreeNode
           key={employee.Id}
